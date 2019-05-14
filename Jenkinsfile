@@ -10,8 +10,9 @@ pipeline {
     parameters {
         choice(name: "CHANNEL", choices: ["nightly", "dev", "beta", "release"], description: "")
         booleanParam(name: "WIPE_WORKSPACE", defaultValue: false, description: "")
-        booleanParam(name: "RUN_INIT", defaultValue: false, description: "")
+        booleanParam(name: "SKIP_INIT", defaultValue: false, description: "")
         booleanParam(name: "DISABLE_SCCACHE", defaultValue: false, description: "")
+        booleanParam(name: "SKIP_SIGNING", defaultValue: true, description: "")
         booleanParam(name: "DEBUG", defaultValue: false, description: "")
     }
     environment {
@@ -26,8 +27,9 @@ pipeline {
                 script {
                     CHANNEL = params.CHANNEL
                     WIPE_WORKSPACE = params.WIPE_WORKSPACE
-                    RUN_INIT = params.RUN_INIT
+                    SKIP_INIT = params.SKIP_INIT
                     DISABLE_SCCACHE = params.DISABLE_SCCACHE
+                    SKIP_SIGNING = params.SKIP_SIGNING
                     DEBUG = params.DEBUG
                     SKIP = false
                     BRANCH = env.BRANCH_NAME
@@ -180,8 +182,9 @@ def startBraveBrowserBuild() {
     params = [
         string(name: "CHANNEL", value: CHANNEL),
         booleanParam(name: "WIPE_WORKSPACE", value: WIPE_WORKSPACE),
-        booleanParam(name: "RUN_INIT", value: RUN_INIT),
+        booleanParam(name: "SKIP_INIT", value: SKIP_INIT),
         booleanParam(name: "DISABLE_SCCACHE", value: DISABLE_SCCACHE),
+        booleanParam(name: "SKIP_SIGNING", value: SKIP_SIGNING),
         booleanParam(name: "DEBUG", value: DEBUG)
     ]
     currentBuild.result = build(job: "brave-browser-build-pr/" + refToBuild, parameters: params, propagate: false).result
