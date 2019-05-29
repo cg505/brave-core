@@ -1,0 +1,27 @@
+diff --git a/chrome/installer/mac/signing/signing.py b/chrome/installer/mac/signing/signing.py
+index b56853e5e2649328a81a2de20228de5abda08f11..281a7c4dc746985e80c8dc14569b1a8de34ebef1 100644
+--- a/chrome/installer/mac/signing/signing.py
++++ b/chrome/installer/mac/signing/signing.py
+@@ -84,6 +84,12 @@ def get_parts(config):
+                 options=CodeSignOptions.RESTRICT +
+                 CodeSignOptions.LIBRARY_VALIDATION,
+                 verify_options=VerifyOptions.IGNORE_RESOURCES),
++        'sparkle-framework':
++            CodeSignedProduct(
++                '{.framework_dir}/Frameworks/Sparkle.framework'
++                .format(config),
++                'Sparkle.framework',
++                verify_options=VerifyOptions.DEEP + VerifyOptions.NO_STRICT),
+     }
+ 
+     dylibs = (
+@@ -210,6 +216,9 @@ def sign_chrome(paths, config):
+             nested binaries must exist in |paths.work|.
+     """
+     parts = get_parts(config)
++    print("=== SIGNING.PY: parts are:")
++    for name, part in parts.items():
++        print("Name: " + name + ", part: "+ part.path + "\n")
+ 
+     # If the config permits optional parts, test if the part is missing on-disk
+     # and remove it from the set of parts to sign if it is.

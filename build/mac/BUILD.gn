@@ -17,8 +17,6 @@ _target_app_path = "$root_out_dir/$mac_signing_output_prefix/$brave_exe"
 group("brave") {}
 
 action("sign_app") {
-  brave_app = "$root_build_dir/$brave_exe"
-
   script = "//build/gn_run_binary.py"
   shell_script = "//brave/build/mac/sign_app.sh"
 
@@ -33,16 +31,19 @@ action("sign_app") {
     } else {
       provisioning_profile = "//brave/build/mac/${brave_channel}.provisionprofile"
     }
+    is_official = "True"
   } else {
     # an empty dummy file just to simplify things
     provisioning_profile = "//brave/build/mac/dummy.provisionprofile"
+    is_official = "False"
   }
+
+  brave_app = "$root_build_dir/$brave_exe"
+
   inputs = [
     shell_script,
     brave_app,
     provisioning_profile,
-    "$_packaging_dir/sign_app.sh",
-    "$_packaging_dir/sign_versioned_dir.sh",
     "$_packaging_dir/app-entitlements.plist",
   ]
   outputs = [ _target_app_path ]
@@ -50,18 +51,14 @@ action("sign_app") {
     rebase_path(shell_script, root_out_dir),
 
     # Use absolute paths needed by codesign
-    rebase_path(brave_app),
-    rebase_path(_target_app_path),
+    rebase_path("$root_build_dir"),
+    rebase_path("$root_out_dir/$mac_signing_output_prefix"),
     rebase_path(_packaging_dir),
+    is_official,
+    rebase_path(provisioning_profile, root_out_dir),
     keychain_db,
     mac_signing_identifier,
-    rebase_path(provisioning_profile, root_out_dir),
-    rebase_path("$_packaging_dir/app-entitlements.plist"),
   ]
-
-  if (!is_official_build) {
-    args += [ "--development" ]
-  }
 }
 
 action("create_pkg") {
